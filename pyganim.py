@@ -278,7 +278,6 @@ class PygAnimation(object):
             halfFrameWidth = int(frameWidth / 2)
             halfFrameHeight = int(frameHeight / 2)
 
-            # position the Surface objects to the specified anchor point
             if anchorPoint == NORTHWEST:
                 newSurf.blit(self._images[i], (0, 0))
             elif anchorPoint == NORTH:
@@ -316,89 +315,62 @@ class PygAnimation(object):
 
 
     def fastForward(self, seconds=None):
-        # Set the elapsed time forward relative to the current elapsed time.
         if seconds is None:
-            self.elapsed = self._startTimes[-1] - 0.00002 # done to compensate for rounding errors
+            self.elapsed = self._startTimes[-1] - 0.00002
         else:
             self.elapsed += seconds
 
     def _makeTransformedSurfacesIfNeeded(self):
-        # Internal-method. Creates the Surface objects for the _transformedImages list.
-        # Don't call this method.
         if self._transformedImages == []:
             self._transformedImages = [surf.copy() for surf in self._images]
 
 
-    # Transformation methods.
-    # (These are analogous to the pygame.transform.* functions, except they
-    # are applied to all frames of the animation object.
     def flip(self, xbool, ybool):
-        # Flips the image horizontally, vertically, or both.
-        # See http://pygame.org/docs/ref/transform.html#pygame.transform.flip
         self._makeTransformedSurfacesIfNeeded()
         for i in range(len(self._images)):
             self._transformedImages[i] = pygame.transform.flip(self.getFrame(i), xbool, ybool)
 
 
     def scale(self, width_height):
-        # NOTE: Does not support the DestSurface parameter
-        # Increases or decreases the size of the images.
-        # See http://pygame.org/docs/ref/transform.html#pygame.transform.scale
+        # http://pygame.org/docs/ref/transform.html#pygame.transform.scale
         self._makeTransformedSurfacesIfNeeded()
         for i in range(len(self._images)):
             self._transformedImages[i] = pygame.transform.scale(self.getFrame(i), width_height)
 
 
     def rotate(self, angle):
-        # Rotates the image.
-        # See http://pygame.org/docs/ref/transform.html#pygame.transform.rotate
+        # http://pygame.org/docs/ref/transform.html#pygame.transform.rotate
         self._makeTransformedSurfacesIfNeeded()
         for i in range(len(self._images)):
             self._transformedImages[i] = pygame.transform.rotate(self.getFrame(i), angle)
 
 
     def rotozoom(self, angle, scale):
-        # Rotates and scales the image simultaneously.
-        # See http://pygame.org/docs/ref/transform.html#pygame.transform.rotozoom
         self._makeTransformedSurfacesIfNeeded()
         for i in range(len(self._images)):
             self._transformedImages[i] = pygame.transform.rotozoom(self.getFrame(i), angle, scale)
 
 
     def scale2x(self):
-        # NOTE: Does not support the DestSurface parameter
-        # Double the size of the image using an efficient algorithm.
-        # See http://pygame.org/docs/ref/transform.html#pygame.transform.scale2x
         self._makeTransformedSurfacesIfNeeded()
         for i in range(len(self._images)):
             self._transformedImages[i] = pygame.transform.scale2x(self.getFrame(i))
 
 
     def smoothscale(self, width_height):
-        # NOTE: Does not support the DestSurface parameter
-        # Scales the image smoothly. (Computationally more expensive and
-        # slower but produces a better scaled image.)
-        # See http://pygame.org/docs/ref/transform.html#pygame.transform.smoothscale
         self._makeTransformedSurfacesIfNeeded()
         for i in range(len(self._images)):
             self._transformedImages[i] = pygame.transform.smoothscale(self.getFrame(i), width_height)
 
 
 
-    # pygame.Surface method wrappers
-    # These wrappers call their analogous pygame.Surface methods on all Surface objects in this animation.
-    # They are here for the convenience of the module user. These calls will apply to the transform images,
-    # and can have their effects undone by called clearTransforms()
-    #
-    # It is not advisable to call these methods on the individual Surface objects in self._images.
     def _surfaceMethodWrapper(self, wrappedMethodName, *args, **kwargs):
         self._makeTransformedSurfacesIfNeeded()
         for i in range(len(self._images)):
             methodToCall = getattr(self._transformedImages[i], wrappedMethodName)
             methodToCall(*args, **kwargs)
 
-    # There's probably a more terse way to generate the following methods,
-    # but I don't want to make the code even more unreadable.
+
     def convert(self, *args, **kwargs):
         # http://pygame.org/docs/ref/surface.html#Surface.convert
         self._surfaceMethodWrapper('convert', *args, **kwargs)
@@ -439,15 +411,13 @@ class PygAnimation(object):
         self._surfaceMethodWrapper('unlock', *args, **kwargs)
 
 
-
-    # Getter and setter methods for properties
     def _propGetRate(self):
         return self._rate
 
     def _propSetRate(self, rate):
         rate = float(rate)
         if rate < 0:
-            raise ValueError('rate must be greater than 0.')
+            raise ValueError('rate < 0.')
         self._rate = rate
 
     rate = property(_propGetRate, _propSetRate)
@@ -458,10 +428,6 @@ class PygAnimation(object):
 
     def _propSetLoop(self, loop):
         if self.state == PLAYING and self._loop and not loop:
-            # if we are turning off looping while the animation is playing,
-            # we need to modify the _playingStartTime so that the rest of
-            # the animation will play, and then stop. (Otherwise, the
-            # animation will immediately stop playing if it has already looped.)
             self._playingStartTime = time.time() - self.elapsed
         self._loop = bool(loop)
 
