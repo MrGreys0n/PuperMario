@@ -1,13 +1,22 @@
 import pygame
+from pygame import *
+from player import *
+from blocks import *
+from monsters import *
+from images import *
 
 WIN_WIDTH = 1000
-WIN_HEIGHT = 800
+WIN_HEIGHT = 800 
 DISPLAY = (WIN_WIDTH, WIN_HEIGHT)
 WINDISP = (421, 410)
 BACKGROUND_COLOR = "#000000"
+LEVELS = [1, 2]
 
 FILE_DIR = os.path.dirname(__file__)
-lvl = int(input('Input lvl: '))
+lvl = int(input('Input lvl 1-2: '))
+while lvl not in LEVELS:
+    print('Введённого уровня не существует!')
+    lvl = int(input('Input lvl 1-2(only 2 works xD): '))
 print('Loading...')
 
 class Camera(object):
@@ -16,10 +25,10 @@ class Camera(object):
         self.state = Rect(0, 0, width, height)
 
     def apply(self, target):
-        return """"""
+        return target.rect.move(self.state.topleft)
 
     def update(self, target):
-        """"""
+        self.state = self.camera_func(self.state, target.rect)
         
 def camera_configure(camera, target_rect):
     l, t, _, _ = target_rect
@@ -32,12 +41,6 @@ def camera_configure(camera, target_rect):
     t = min(0, t)
 
     return Rect(l, t, w, h) 
-
-
-def win():
-    screen = pygame.display.set_mode(WINDISP)
-    #screen.blit(pygame.image.load('won.jpg'), (0,0))
-    screen.fill(355,0,0)
 
 def loadLevel():
     global playerX, playerY
@@ -61,22 +64,20 @@ def loadLevel():
                 playerX= int(commands[1]) # то записываем координаты героя
                 playerY = int(commands[2])
             if commands[0] == "portal": # если первая команда portal, то создаем портал
-                tp = """телепорт"""
+                tp = BlockTeleport(int(commands[1]),int(commands[2]),int(commands[3]),int(commands[4]))
                 entities.add(tp)
                 platforms.append(tp)
                 animatedEntities.add(tp)
-                """добавили врагов, платформы и анимированных врагов"""
             if commands[0] == "monster": # если первая команда monster, то создаем монстра
-                mn = """"монстр"""
+                mn = Monster(int(commands[1]),int(commands[2]),int(commands[3]),int(commands[4]),int(commands[5]),int(commands[6]))
                 entities.add(mn)
                 platforms.append(mn)
                 monsters.add(mn)
 
 def main():
-    #os.system("python lvlchose.py")
     loadLevel()
     pygame.init() # Инициация PyGame, обязательная строчка 
-    screen = pygame.display.set_mode(DISPLAY) # Создаем окошко
+    screen = pygame.display.set_mode(DISPLAY, pygame.FULLSCREEN) # Создаем окошко
     pygame.display.set_caption("PUPER MARIO") # Пишем в шапку
     bg = Surface((WIN_WIDTH,WIN_HEIGHT)) # Создание видимой поверхности
                                          # будем использовать как фон
@@ -151,15 +152,15 @@ def main():
         for e in entities:
             screen.blit(e.image, camera.apply(e))
         pygame.display.update()     # обновление и вывод всех изменений на экран
-    #win()
-    screen = pygame.display.set_mode(WINDISP)
-    screen.blit(pygame.image.load('won.jpg'), (0,0))
+    time.wait(500)
+    pygame.init()
+    screen = pygame.display.set_mode(WINDISP, pygame.FULLSCREEN)
+    screen.blit(pygame.image.load(FILE_DIR + '/images/won.jpg'), (0,0))
     pygame.display.update()
-    for e in pygame.event.get():
-        if e.type == pygame.QUIT:
-            pygame.quit()
-    
-    
+    time.wait(4000)
+    pygame.quit()
+        
+
 level = []
 entities = pygame.sprite.Group() # Все объекты
 animatedEntities = pygame.sprite.Group() # все анимированные объекты, за исключением героя
