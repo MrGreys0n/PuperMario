@@ -13,10 +13,10 @@ BACKGROUND_COLOR = "#000000"
 LEVELS = [1, 2]
 
 FILE_DIR = os.path.dirname(__file__)
-lvl = int(input('Input lvl 1-2: '))
+lvl = int(input('Введите номер уровня(в данной версии игры их 2): '))
 while lvl not in LEVELS:
     print('Введённого уровня не существует!')
-    lvl = int(input('Input lvl 1-2(only 2 works xD): '))
+    lvl = int(input('Введите номер уровня(в данной версии игры их 2): '))
 print('Loading...')
 
 class Camera(object):
@@ -152,12 +152,13 @@ def main():
         for e in entities:
             screen.blit(e.image, camera.apply(e))
         pygame.display.update()     # обновление и вывод всех изменений на экран
-    time.wait(500)
+    #win()
+    time.wait(250)
     pygame.init()
     screen = pygame.display.set_mode(WINDISP, pygame.FULLSCREEN)
     screen.blit(pygame.image.load(FILE_DIR + '/images/won.jpg'), (0,0))
     pygame.display.update()
-    time.wait(4000)
+    time.wait(3500)
     pygame.quit()
         
 
