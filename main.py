@@ -10,14 +10,17 @@ WIN_HEIGHT = 800
 DISPLAY = (WIN_WIDTH, WIN_HEIGHT)
 WINDISP = (421, 410)
 BACKGROUND_COLOR = "#000000"
-LEVELS = [1, 2]
+LEVELS = ['1', '2']
 
 FILE_DIR = os.path.dirname(__file__)
-lvl = int(input('Введите номер уровня(в данной версии игры их 2): '))
-while lvl not in LEVELS:
+print('PuperMario приветствует тебя! Спаси принцессу, чтобы победить!\nКажется, что это легко? Это не так! Попробуй сделать это!\nДля управления мной используй стрелочки(вверх - прыжок,\nвниз - не используется, лево - лево, прааво - право) и LShift для ускорения.')
+check = input('Введите номер уровня(в данной версии игры их 2): ')
+while check not in LEVELS:
     print('Введённого уровня не существует!')
-    lvl = int(input('Введите номер уровня(в данной версии игры их 2): '))
-print('Loading...')
+    check = input('Введите номер уровня(в данной версии игры их 2): ')
+
+lvl = int(check)    
+print('Загрузка...')
 
 class Camera(object):
     def __init__(self, camera_func, width, height):
